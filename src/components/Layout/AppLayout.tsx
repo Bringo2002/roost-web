@@ -11,7 +11,7 @@ export function AppLayout() {
   return (
     <div className={styles.layout}>
       <Sidebar unreadMessages={unreadMessages} />
-      <Header />
+      <Header unreadMessages={unreadMessages} />
       <main className={styles.main}>
         <Outlet />
       </main>
