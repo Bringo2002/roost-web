@@ -27,7 +27,7 @@
   top: 50%;
   transform: translateY(-50%);
   color: var(--color-text-tertiary);
-  font-size: var(--font-size-md);
+  display: flex;
   pointer-events: none;
 }
 

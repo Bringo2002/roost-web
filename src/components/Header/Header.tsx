@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Icon } from '../Icon/Icon';
 import { AccountMenu } from '../AccountMenu/AccountMenu';
 import styles from './Header.module.css';
 
@@ -22,7 +23,7 @@ export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
   return (
     <header className={styles.header}>
       <form className={styles.searchWrap} onSubmit={handleSearch}>
-        <span className={styles.searchIcon}>⌕</span>
+        <span className={styles.searchIcon}><Icon name="search" size={18} /></span>
         <input
           type="search"
           className={styles.searchInput}
@@ -38,7 +39,7 @@ export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
       <button className={styles.locationBtn} type="button" aria-label="Select location">
         <span className={styles.locationDot} />
         Nairobi
-        <span>▾</span>
+        <Icon name="chevron-down" size={16} />
       </button>
 
       <div className={styles.headerActions}>
@@ -48,7 +49,7 @@ export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
           type="button"
           aria-label={unreadMessages > 0 ? `Messages, ${unreadMessages} unread` : 'Messages'}
         >
-          🔔
+          <Icon name="bell" size={18} />
           {unreadMessages > 0 && (
             <span className={styles.iconBadge} aria-hidden="true">
               {unreadMessages > 9 ? '9+' : unreadMessages}
@@ -72,7 +73,7 @@ export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
             aria-label="Sign in"
             style={{ background: 'var(--color-surface-raised)', color: 'var(--color-text-secondary)' }}
           >
-            ☺
+            <Icon name="user" size={18} />
           </button>
         )}
       </div>

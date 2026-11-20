@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Icon, type IconName } from '../Icon/Icon';
 import styles from './AccountMenu.module.css';
 
-const MENU_ITEMS = [
-  { to: '/profile', label: 'Profile', icon: '☺' },
-  { to: '/hosting', label: 'My Properties', icon: '⌂' },
-  { to: '/saved', label: 'Saved Properties', icon: '♡' },
-  { to: '/inspections', label: 'My Inspections', icon: '☑' },
-  { to: '/messages', label: 'Messages', icon: '✉' },
-  { to: '/settings', label: 'Account Settings', icon: '⚙' },
+const MENU_ITEMS: { to: string; label: string; icon: IconName }[] = [
+  { to: '/profile', label: 'Profile', icon: 'user' },
+  { to: '/hosting', label: 'My Properties', icon: 'home' },
+  { to: '/saved', label: 'Saved Properties', icon: 'heart' },
+  { to: '/inspections', label: 'My Inspections', icon: 'clipboard-check' },
+  { to: '/messages', label: 'Messages', icon: 'message' },
+  { to: '/settings', label: 'Account Settings', icon: 'settings' },
 ];
 
 interface AccountMenuProps {
@@ -80,7 +81,7 @@ export function AccountMenu({ initial, name, email, triggerClassName, unreadMess
                 role="menuitem"
                 onClick={() => setOpen(false)}
               >
-                <span className={styles.itemIcon}>{item.icon}</span>
+                <span className={styles.itemIcon}><Icon name={item.icon} size={18} /></span>
                 {item.label}
                 {item.to === '/messages' && unreadMessages > 0 && (
                   <span className={styles.badge} aria-label={`${unreadMessages} unread messages`}>
