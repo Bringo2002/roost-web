@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Header.module.css';
 
-export function Header() {
+export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const { user, isAuthenticated, tokenUser } = useAuth();
@@ -41,8 +41,18 @@ export function Header() {
       </button>
 
       <div className={styles.headerActions}>
-        <button className={styles.iconBtn} type="button" aria-label="Notifications">
+        <button
+          className={styles.iconBtn}
+          onClick={() => navigate('/messages')}
+          type="button"
+          aria-label={unreadMessages > 0 ? `Messages, ${unreadMessages} unread` : 'Messages'}
+        >
           🔔
+          {unreadMessages > 0 && (
+            <span className={styles.iconBadge} aria-hidden="true">
+              {unreadMessages > 9 ? '9+' : unreadMessages}
+            </span>
+          )}
         </button>
 
         {isAuthenticated ? (
