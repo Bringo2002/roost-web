@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { AccountMenu } from '../AccountMenu/AccountMenu';
 import styles from './Header.module.css';
 
 export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
@@ -56,14 +57,13 @@ export function Header({ unreadMessages = 0 }: { unreadMessages?: number }) {
         </button>
 
         {isAuthenticated ? (
-          <button
-            className={styles.avatar}
-            onClick={() => navigate('/profile')}
-            type="button"
-            aria-label="Profile"
-          >
-            {initial}
-          </button>
+          <AccountMenu
+            initial={initial}
+            name={displayName}
+            email={user?.email || tokenUser?.email || ''}
+            triggerClassName={styles.avatar}
+            unreadMessages={unreadMessages}
+          />
         ) : (
           <button
             className={styles.avatar}
