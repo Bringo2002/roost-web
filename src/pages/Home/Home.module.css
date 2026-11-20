@@ -121,12 +121,13 @@
 }
 
 .statValue {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-gold);
 }
 
 .statLabel {
+  max-width: 200px;
   font-size: var(--font-size-sm);
   color: var(--color-text-tertiary);
   margin-top: var(--space-1);

@@ -40,12 +40,12 @@ export function HomePage() {
         <div className={styles.heroContent}>
           <span className={styles.heroTag}>✦ Africa's Property Platform</span>
           <h1 className={styles.heroTitle}>
-            Find Your Next Home,{' '}
-            <span className={styles.heroGold}>Directly.</span>
+            Find a place.{' '}
+            <span className={styles.heroGold}>Not a middleman.</span>
           </h1>
           <p className={styles.heroDesc}>
-            Discover GPS-verified properties near you. Connect directly with
-            landlords, caretakers, and agents — no middleman fees.
+            Discover homes around you. Connect directly with the people
+            responsible for them.
           </p>
           <div className={styles.heroActions}>
             <button
@@ -65,16 +65,16 @@ export function HomePage() {
           </div>
           <div className={styles.heroStats}>
             <div className={styles.stat}>
-              <span className={styles.statValue}>2,500+</span>
-              <span className={styles.statLabel}>Verified Listings</span>
+              <span className={styles.statValue}>Verified badges</span>
+              <span className={styles.statLabel}>Earned through location and document checks</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statValue}>15K+</span>
-              <span className={styles.statLabel}>Happy Tenants</span>
+              <span className={styles.statValue}>Direct contact</span>
+              <span className={styles.statLabel}>Chat or call the people responsible</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statValue}>6</span>
-              <span className={styles.statLabel}>Countries</span>
+              <span className={styles.statValue}>Fast &amp; easy</span>
+              <span className={styles.statLabel}>Filter by type, price and area</span>
             </div>
           </div>
         </div>
