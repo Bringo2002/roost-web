@@ -1,11 +1,15 @@
 import {
+  Bath,
+  Bed,
   Bell,
+  Camera,
   ChevronDown,
   ClipboardCheck,
   Heart,
   House,
   LayoutDashboard,
   Map,
+  MapPin,
   MessageSquare,
   Play,
   Plus,
@@ -31,6 +35,10 @@ const ICONS = {
   bell: Bell,
   'chevron-down': ChevronDown,
   plus: Plus,
+  camera: Camera,
+  'map-pin': MapPin,
+  bed: Bed,
+  bath: Bath,
 } as const;
 
 export type IconName = keyof typeof ICONS;
