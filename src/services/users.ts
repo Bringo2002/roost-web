@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { User, ConversationSummary } from '../types/user';
+import type { User, ConversationSummary, Message } from '../types/user';
 
 export async function getCurrentUser(): Promise<User> {
   return api.get<User>('/api/users/me');
@@ -27,13 +27,35 @@ export async function getUnreadCount(): Promise<number> {
   return typeof data?.count === 'number' ? data.count : 0;
 }
 
-export async function getMessages(partnerId: number, page = 0): Promise<unknown[]> {
-  const data = await api.get<unknown[]>(`/api/chat/messages/${partnerId}?page=${page}`);
-  return Array.isArray(data) ? data : [];
+interface RawChatMessage {
+  id: number;
+  sender?: { id: number };
+  recipient?: { id: number };
+  content?: string;
+  nonce?: string;
+  timestamp: string;
+  read: boolean;
+  attachmentMeta?: string;
+  attachmentMetaNonce?: string;
 }
 
-export async function sendMessage(receiverId: number, content: string): Promise<unknown> {
-  return api.post('/api/chat/send', { receiverId, content });
+// Content is end-to-end encrypted: the API returns ciphertext + nonce.
+// Attachment payloads are intentionally dropped here; the web app can't
+// decrypt them yet.
+export async function getMessages(partnerId: number, limit = 50): Promise<Message[]> {
+  const data = await api.get<RawChatMessage[]>(`/api/chat/history/${partnerId}?limit=${limit}`);
+  if (!Array.isArray(data)) return [];
+  return data.map(m => ({
+    id: m.id,
+    senderId: m.sender?.id ?? 0,
+    receiverId: m.recipient?.id ?? 0,
+    content: m.content ?? '',
+    nonce: m.nonce,
+    timestamp: m.timestamp,
+    read: m.read,
+    attachmentMeta: m.attachmentMeta,
+    attachmentMetaNonce: m.attachmentMetaNonce,
+  }));
 }
 
 export async function changePassword(

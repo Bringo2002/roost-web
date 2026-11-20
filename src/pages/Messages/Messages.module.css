@@ -250,3 +250,12 @@
   .chatHeaderBack { display: block; }
   .page { position: relative; }
 }
+
+.encryptedNotice {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
