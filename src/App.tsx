@@ -12,6 +12,7 @@ import { HostingPage } from './pages/Hosting/HostingPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { FeedPage } from './pages/Feed/FeedPage';
 import { PlaceholderPage } from './pages/Placeholder/PlaceholderPage';
+import { MyInspectionsPage } from './pages/Inspections/MyInspectionsPage';
 
 export function App() {
   return (
@@ -29,7 +30,7 @@ export function App() {
             <Route path="hosting" element={<HostingPage />} />
             <Route path="map" element={<PlaceholderPage icon="📍" title="Map View" description="Explore properties on an interactive map with GPS-verified locations." />} />
             <Route path="feed" element={<FeedPage />} />
-            <Route path="inspections" element={<PlaceholderPage icon="☑" title="My Inspections" description="Schedule and track property inspections with photo documentation." />} />
+            <Route path="inspections" element={<MyInspectionsPage />} />
             <Route path="hosting/new" element={<PlaceholderPage icon="➕" title="List a Property" description="Add your property with GPS verification and reach thousands of tenants." />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="*" element={<PlaceholderPage icon="404" title="Page Not Found" description="The page you're looking for doesn't exist." />} />

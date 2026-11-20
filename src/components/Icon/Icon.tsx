@@ -4,7 +4,11 @@ import {
   Bell,
   Camera,
   ChevronDown,
+  ChevronRight,
   ClipboardCheck,
+  Clock,
+  Copy,
+  FileCheck,
   Heart,
   House,
   LayoutDashboard,
@@ -15,7 +19,9 @@ import {
   Plus,
   Search,
   Settings,
+  Share2,
   User,
+  X,
   type LucideProps,
 } from 'lucide-react';
 
@@ -39,6 +45,12 @@ const ICONS = {
   'map-pin': MapPin,
   bed: Bed,
   bath: Bath,
+  'chevron-right': ChevronRight,
+  'file-check': FileCheck,
+  clock: Clock,
+  copy: Copy,
+  share: Share2,
+  close: X,
 } as const;
 
 export type IconName = keyof typeof ICONS;
