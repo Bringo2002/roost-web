@@ -183,3 +183,9 @@
   letter-spacing: var(--letter-spacing-wide);
   z-index: 2;
 }
+
+.location svg,
+.detail svg,
+.imageCount svg {
+  flex-shrink: 0;
+}

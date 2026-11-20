@@ -3,6 +3,7 @@ import type { Property } from '../../types/property';
 import { formatHouseType } from '../../types/property';
 import { formatPrice } from '../../utils/format';
 import styles from './PropertyCard.module.css';
+import { Icon } from '../Icon/Icon';
 
 interface PropertyCardProps {
   property: Property;
@@ -41,7 +42,7 @@ export function PropertyCard({ property, isSaved = false, onToggleSave }: Proper
             loading="lazy"
           />
         ) : (
-          <div className={styles.noImage}>🏠</div>
+          <div className={styles.noImage}><Icon name="home" size={32} /></div>
         )}
 
         {!p.available && <div className={styles.unavailableTag}>Taken</div>}
@@ -59,11 +60,13 @@ export function PropertyCard({ property, isSaved = false, onToggleSave }: Proper
           type="button"
           aria-label={isSaved ? 'Remove from saved' : 'Save property'}
         >
-          {isSaved ? '♥' : '♡'}
+          <Icon name="heart" size={16} fill={isSaved ? 'currentColor' : 'none'} />
         </button>
 
         {imageCount > 1 && (
-          <span className={styles.imageCount}>📷 {imageCount}</span>
+          <span className={styles.imageCount}>
+            <Icon name="camera" size={12} /> {imageCount}
+          </span>
         )}
       </div>
 
@@ -76,13 +79,13 @@ export function PropertyCard({ property, isSaved = false, onToggleSave }: Proper
         </div>
 
         <div className={styles.location}>
-          📍 {p.location}
+          <Icon name="map-pin" size={14} /> {p.location}
         </div>
 
         <div className={styles.details}>
           <span className={styles.detail}>{formatHouseType(p.houseType)}</span>
-          <span className={styles.detail}>🛏 {p.bedrooms}</span>
-          <span className={styles.detail}>🚿 {p.bathrooms}</span>
+          <span className={styles.detail}><Icon name="bed" size={14} /> {p.bedrooms}</span>
+          <span className={styles.detail}><Icon name="bath" size={14} /> {p.bathrooms}</span>
         </div>
       </div>
     </article>
