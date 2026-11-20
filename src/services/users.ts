@@ -22,6 +22,11 @@ export async function getConversations(): Promise<ConversationSummary[]> {
   return Array.isArray(data) ? data : [];
 }
 
+export async function getUnreadCount(): Promise<number> {
+  const data = await api.get<{ count?: number }>('/api/chat/unread-count');
+  return typeof data?.count === 'number' ? data.count : 0;
+}
+
 export async function getMessages(partnerId: number, page = 0): Promise<unknown[]> {
   const data = await api.get<unknown[]>(`/api/chat/messages/${partnerId}?page=${page}`);
   return Array.isArray(data) ? data : [];
