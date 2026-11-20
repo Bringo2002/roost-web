@@ -1,18 +1,26 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getConversations, getMessages, sendMessage } from '../../services/users';
+import { getConversations, getMessages } from '../../services/users';
 import { formatTimeAgo } from '../../utils/format';
-import type { ConversationSummary } from '../../types/user';
+import type { ConversationSummary, Message } from '../../types/user';
 import styles from './Messages.module.css';
 
-interface ChatMessage {
-  id: number;
-  senderId: number;
-  receiverId: number;
-  content: string;
-  timestamp: string;
-  read: boolean;
+// Messages are end-to-end encrypted and the web app can't decrypt them yet,
+// so show a placeholder instead of ciphertext.
+function conversationPreview(c: ConversationSummary): string {
+  if (c.decryptedPreview) return c.decryptedPreview;
+  if (c.lastMessageContent && !c.lastMessageNonce) return c.lastMessageContent;
+  if (c.lastMessageNonce) return '🔒 Encrypted message';
+  if (c.hasAttachment) return '📎 Attachment';
+  return 'No messages yet';
+}
+
+function bubbleText(m: Message): string {
+  if (m.content && !m.nonce) return m.content;
+  if (m.nonce) return '🔒 Encrypted message';
+  if (m.attachmentMeta) return '📎 Attachment';
+  return '';
 }
 
 export function MessagesPage() {
@@ -23,13 +31,10 @@ export function MessagesPage() {
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(toParam ? Number(toParam) : null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [newMsg, setNewMsg] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loadingConvs, setLoadingConvs] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
-  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!isAuthenticated) navigate('/login');
@@ -52,19 +57,12 @@ export function MessagesPage() {
     setLoadingMsgs(true);
     try {
       const data = await getMessages(selectedId);
-      setMessages(data as ChatMessage[]);
+      setMessages(data);
     } catch { /* non-critical */ }
     finally { setLoadingMsgs(false); }
   }, [selectedId]);
 
   useEffect(() => { fetchMessages(); }, [fetchMessages]);
-
-  // Poll for new messages
-  useEffect(() => {
-    if (!selectedId) return;
-    const interval = setInterval(fetchMessages, 10000);
-    return () => clearInterval(interval);
-  }, [selectedId, fetchMessages]);
 
   // Auto-scroll
   useEffect(() => {
@@ -72,41 +70,6 @@ export function MessagesPage() {
   }, [messages]);
 
   const selectedConv = conversations.find(c => c.partner.id === selectedId);
-
-  const handleSend = async () => {
-    if (!newMsg.trim() || !selectedId || sending) return;
-    setSending(true);
-    const content = newMsg.trim();
-    setNewMsg('');
-
-    // Optimistic append
-    const optimistic: ChatMessage = {
-      id: Date.now(),
-      senderId: user?.id || 0,
-      receiverId: selectedId,
-      content,
-      timestamp: new Date().toISOString(),
-      read: false,
-    };
-    setMessages(prev => [...prev, optimistic]);
-
-    try {
-      await sendMessage(selectedId, content);
-    } catch {
-      // Remove optimistic on failure
-      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
-    } finally {
-      setSending(false);
-      textareaRef.current?.focus();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
@@ -142,7 +105,7 @@ export function MessagesPage() {
               <div className={styles.convInfo}>
                 <div className={styles.convName}>{conv.partner.name}</div>
                 <div className={styles.convPreview}>
-                  {conv.decryptedPreview || conv.lastMessageContent || 'No messages yet'}
+                  {conversationPreview(conv)}
                 </div>
               </div>
               <div className={styles.convMeta}>
@@ -183,7 +146,7 @@ export function MessagesPage() {
             ) : messages.length === 0 ? (
               <div className={styles.emptyState}>
                 <span className={styles.emptyIcon}>💬</span>
-                <span className={styles.emptyDesc}>Send a message to start the conversation.</span>
+                <span className={styles.emptyDesc}>No messages yet.</span>
               </div>
             ) : (
               messages.map(msg => (
@@ -193,7 +156,7 @@ export function MessagesPage() {
                     msg.senderId === user?.id ? styles.msgSent : styles.msgReceived
                   }`}
                 >
-                  {msg.content}
+                  {bubbleText(msg)}
                   <div className={styles.msgTime}>{formatTimeAgo(msg.timestamp)}</div>
                 </div>
               ))
@@ -201,25 +164,9 @@ export function MessagesPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className={styles.inputBar}>
-            <textarea
-              ref={textareaRef}
-              className={styles.inputField}
-              placeholder="Type a message..."
-              value={newMsg}
-              onChange={e => setNewMsg(e.target.value)}
-              onKeyDown={handleKeyDown}
-              rows={1}
-            />
-            <button
-              className={styles.sendBtn}
-              onClick={handleSend}
-              disabled={!newMsg.trim() || sending}
-              type="button"
-              aria-label="Send message"
-            >
-              ➤
-            </button>
+          <div className={styles.encryptedNotice}>
+            🔒 Messages are end-to-end encrypted. Reading and replying are
+            available in the Roost app for now.
           </div>
         </div>
       ) : (
