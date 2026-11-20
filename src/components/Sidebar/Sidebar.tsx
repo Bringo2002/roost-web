@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { path: '/settings', label: 'Settings', icon: '⚙' },
 ];
 
-export function Sidebar() {
+export function Sidebar({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const navigate = useNavigate();
 
   return (
@@ -39,6 +39,11 @@ export function Sidebar() {
           >
             <span className={styles.navIcon}>{item.icon}</span>
             {item.label}
+            {item.path === '/messages' && unreadMessages > 0 && (
+              <span className={styles.navBadge} aria-label={`${unreadMessages} unread messages`}>
+                {unreadMessages > 99 ? '99+' : unreadMessages}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

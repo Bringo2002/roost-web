@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './MobileNav.module.css';
 
-export function MobileNav() {
+export function MobileNav({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const navigate = useNavigate();
 
   return (
@@ -21,6 +21,11 @@ export function MobileNav() {
         <NavLink to="/messages" className={({ isActive }) => `${styles.navBtn} ${isActive ? styles.navBtnActive : ''}`}>
           <span className={styles.navIcon}>✉</span>
           Messages
+          {unreadMessages > 0 && (
+            <span className={styles.navBadge} aria-label={`${unreadMessages} unread messages`}>
+              {unreadMessages > 99 ? '99+' : unreadMessages}
+            </span>
+          )}
         </NavLink>
         <NavLink to="/profile" className={({ isActive }) => `${styles.navBtn} ${isActive ? styles.navBtnActive : ''}`}>
           <span className={styles.navIcon}>☺</span>

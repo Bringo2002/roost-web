@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { useProperties } from '../../hooks/useProperties';
 import { useSavedProperties } from '../../hooks/useSavedProperties';
 import { PropertyCard } from '../../components/PropertyCard/PropertyCard';
@@ -22,6 +23,8 @@ const CATEGORIES = [
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { user, tokenUser, isAuthenticated } = useAuth();
+  const firstName = (user?.name || tokenUser?.name || '').trim().split(/\s+/)[0];
   const [activeCategory, setActiveCategory] = useState(0);
   const filters: PropertyFilters = {
     ...CATEGORIES[activeCategory].filter,
@@ -38,7 +41,11 @@ export function HomePage() {
       <section className={styles.hero}>
         <div className={styles.heroBg} />
         <div className={styles.heroContent}>
-          <span className={styles.heroTag}>✦ Africa's Property Platform</span>
+          {isAuthenticated && firstName ? (
+            <span className={styles.heroGreeting}>Welcome back, {firstName} 👋</span>
+          ) : (
+            <span className={styles.heroTag}>✦ Africa's Property Platform</span>
+          )}
           <h1 className={styles.heroTitle}>
             Find a place.{' '}
             <span className={styles.heroGold}>Not a middleman.</span>

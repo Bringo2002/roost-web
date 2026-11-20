@@ -44,6 +44,22 @@
   margin-bottom: var(--space-6);
 }
 
+.heroGreeting {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-6);
+}
+.heroGreeting::before {
+  content: '';
+  width: 32px;
+  height: 2px;
+  background: var(--color-gold);
+}
+
 .heroTitle {
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-extrabold);
