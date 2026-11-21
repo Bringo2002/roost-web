@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getPropertyById, getSimilarProperties, recordView } from '../../services/properties';
 import { useSavedProperties } from '../../hooks/useSavedProperties';
 import { PropertyCard } from '../../components/PropertyCard/PropertyCard';
+import { InspectionActionCard } from '../../components/InspectionActionCard/InspectionActionCard';
 import { getActiveAmenities, getManagementBadge, formatHouseType, getTotalMoveInCost } from '../../types/property';
 import type { Property } from '../../types/property';
 import { formatPrice } from '../../utils/format';
@@ -144,6 +145,8 @@ export function PropertyDetailPage() {
           </div>
         </div>
       </div>
+
+      <InspectionActionCard propertyId={p.id} />
 
       {/* Similar Properties */}
       {similar.length > 0 && (
