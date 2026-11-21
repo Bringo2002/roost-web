@@ -10,6 +10,16 @@ export const ITEM_CONDITION_LABELS: Record<ItemCondition, string> = {
   notApplicable: 'N/A',
 };
 
+export const CONDITION_EMOJI: Record<ItemCondition, string> = {
+  good: '✅',
+  minorWear: '⚠️',
+  damaged: '❌',
+  notApplicable: '➖',
+};
+
+/** Display order of the condition buttons. */
+export const ITEM_CONDITIONS: ItemCondition[] = ['good', 'minorWear', 'damaged', 'notApplicable'];
+
 export interface InspectionItem {
   name: string;
   condition: ItemCondition;
@@ -104,4 +114,30 @@ export function conditionCounts(inspection: MoveInInspection): { good: number; w
     }
   }
   return { good, wear, damaged };
+}
+
+// ── Template for a new inspection (same rooms and items as the app) ──────
+
+function room(roomName: string, roomIcon: string, itemNames: string[]): RoomInspection {
+  return {
+    roomName,
+    roomIcon,
+    items: itemNames.map(name => ({
+      name,
+      condition: 'good' as const,
+      notes: '',
+      photoUrls: [],
+      isInspected: false,
+    })),
+  };
+}
+
+export function createDefaultRooms(): RoomInspection[] {
+  return [
+    room('Living Room', '🛋️', ['Walls & Paint', 'Flooring', 'Windows & Curtains', 'Light Fixtures', 'Electrical Outlets', 'Door & Lock']),
+    room('Kitchen', '🍳', ['Sink & Plumbing', 'Countertops', 'Cabinets & Shelves', 'Stove/Cooktop', 'Exhaust/Ventilation', 'Flooring']),
+    room('Master Bedroom', '🛏️', ['Walls & Paint', 'Flooring', 'Windows & Curtains', 'Built-in Wardrobes', 'Light Fixtures', 'Door & Lock']),
+    room('Bathroom', '🚿', ['Toilet', 'Shower/Bathtub', 'Sink & Mirror', 'Tiles & Grouting', 'Plumbing (Hot/Cold)', 'Ventilation']),
+    room('Utility & Meters', '⚡', ['Main Door & Lock', 'Electricity Meter', 'Water Meter', 'Circuit Breaker', 'Fire Safety Equipment']),
+  ];
 }

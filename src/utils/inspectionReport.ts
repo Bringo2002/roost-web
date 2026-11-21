@@ -1,17 +1,10 @@
 import {
+  CONDITION_EMOJI,
   ITEM_CONDITION_LABELS,
   conditionCounts,
   totalItems,
-  type ItemCondition,
   type MoveInInspection,
 } from '../types/inspection';
-
-const CONDITION_EMOJI: Record<ItemCondition, string> = {
-  good: '✅',
-  minorWear: '⚠️',
-  damaged: '❌',
-  notApplicable: '➖',
-};
 
 /** Plain-text report, identical in layout to the app's generateReport(). */
 export function generateInspectionReport(inspection: MoveInInspection): string {
