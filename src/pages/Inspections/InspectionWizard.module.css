@@ -549,3 +549,45 @@
   border-radius: var(--radius-md);
   background: var(--color-surface-hover);
 }
+
+/* ── Sign-off ────────────────────────────────────────────── */
+
+.sigRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sigRow:hover:not(:disabled) {
+  border-color: var(--color-gold);
+}
+
+.sigRow:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sigRowSigned {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.sigLabel {
+  flex: 1;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.sigState {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
+}
