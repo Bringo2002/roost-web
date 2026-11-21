@@ -5,12 +5,10 @@ import 'leaflet/dist/leaflet.css';
 import { getPropertyById } from '../../services/properties';
 import type { Property } from '../../types/property';
 import { distanceKm, formatPrice } from '../../utils/format';
+import { DEFAULT_CENTER, addBaseTiles, userLocationMarker } from '../../utils/map';
 import { Icon } from '../../components/Icon/Icon';
 import styles from './PropertyMap.module.css';
 
-// Nairobi: shown only when a property has no coordinates. Per-country centres
-// arrive with the multi-country config.
-const DEFAULT_CENTER: [number, number] = [-1.286389, 36.817223];
 const PROPERTY_ZOOM = 15;
 const USER_ZOOM = 14;
 const NEIGHBOURHOOD_RADIUS_M = 400;
@@ -76,12 +74,7 @@ export function PropertyMapPage() {
     const map = L.map(containerRef.current, { zoomControl: false }).setView(center, PROPERTY_ZOOM);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-    }).addTo(map);
-    tiles.once('load', () => setMapReady(true));
+    addBaseTiles(map).once('load', () => setMapReady(true));
 
     if (hasCoords) {
       L.circle(center, {
@@ -151,13 +144,7 @@ export function PropertyMapPage() {
     const map = mapRef.current;
     if (!map || !userPos) return;
     userMarkerRef.current?.remove();
-    userMarkerRef.current = L.circleMarker([userPos.lat, userPos.lng], {
-      radius: 7,
-      color: '#ffffff',
-      weight: 2,
-      fillColor: '#4285F4',
-      fillOpacity: 1,
-    }).addTo(map);
+    userMarkerRef.current = userLocationMarker(userPos.lat, userPos.lng).addTo(map);
   }, [userPos, mapAttempt, property]);
 
   const handleLocationButton = () => {

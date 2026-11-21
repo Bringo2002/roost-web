@@ -1,16 +1,33 @@
+const CURRENCY_BY_COUNTRY: Record<string, { currency: string; locale: string }> = {
+  KE: { currency: 'KES', locale: 'en-KE' },
+  NG: { currency: 'NGN', locale: 'en-NG' },
+  ZA: { currency: 'ZAR', locale: 'en-ZA' },
+  GH: { currency: 'GHS', locale: 'en-GH' },
+  UG: { currency: 'UGX', locale: 'en-UG' },
+  TZ: { currency: 'TZS', locale: 'en-TZ' },
+  US: { currency: 'USD', locale: 'en-US' },
+  GB: { currency: 'GBP', locale: 'en-GB' },
+  AE: { currency: 'AED', locale: 'en-AE' },
+};
+
+/** Short form for map pins, e.g. "KES 120K". */
+export function formatPriceCompact(price: number, country = 'KE'): string {
+  const config = CURRENCY_BY_COUNTRY[country] || CURRENCY_BY_COUNTRY.KE;
+  try {
+    return new Intl.NumberFormat(config.locale, {
+      style: 'currency',
+      currency: config.currency,
+      notation: 'compact',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    }).format(price);
+  } catch {
+    return `${config.currency} ${Math.round(price / 1000)}K`;
+  }
+}
+
 export function formatPrice(price: number, country = 'KE'): string {
-  const currencyMap: Record<string, { currency: string; locale: string }> = {
-    KE: { currency: 'KES', locale: 'en-KE' },
-    NG: { currency: 'NGN', locale: 'en-NG' },
-    ZA: { currency: 'ZAR', locale: 'en-ZA' },
-    GH: { currency: 'GHS', locale: 'en-GH' },
-    UG: { currency: 'UGX', locale: 'en-UG' },
-    TZ: { currency: 'TZS', locale: 'en-TZ' },
-    US: { currency: 'USD', locale: 'en-US' },
-    GB: { currency: 'GBP', locale: 'en-GB' },
-    AE: { currency: 'AED', locale: 'en-AE' },
-  };
-  const config = currencyMap[country] || currencyMap.KE;
+  const config = CURRENCY_BY_COUNTRY[country] || CURRENCY_BY_COUNTRY.KE;
   try {
     return new Intl.NumberFormat(config.locale, {
       style: 'currency',

@@ -17,6 +17,9 @@ import { InspectionWizardPage } from './pages/Inspections/InspectionWizardPage';
 import { MyInspectionsPage } from './pages/Inspections/MyInspectionsPage';
 
 // Leaflet is heavy and only this screen needs it.
+const MapPage = lazy(() =>
+  import('./pages/Map/MapPage').then(m => ({ default: m.MapPage })),
+);
 const PropertyMapPage = lazy(() =>
   import('./pages/PropertyMap/PropertyMapPage').then(m => ({ default: m.PropertyMapPage })),
 );
@@ -37,7 +40,7 @@ export function App() {
             <Route path="messages" element={<MessagesPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="hosting" element={<HostingPage />} />
-            <Route path="map" element={<PlaceholderPage icon="📍" title="Map View" description="Explore properties on an interactive map with GPS-verified locations." />} />
+            <Route path="map" element={<Suspense fallback={null}><MapPage /></Suspense>} />
             <Route path="feed" element={<FeedPage />} />
             <Route path="inspections" element={<MyInspectionsPage />} />
             <Route path="hosting/new" element={<PlaceholderPage icon="➕" title="List a Property" description="Add your property with GPS verification and reach thousands of tenants." />} />
