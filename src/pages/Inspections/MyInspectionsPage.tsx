@@ -11,8 +11,8 @@ import styles from './Inspections.module.css';
 
 /**
  * A tenant's own move-in inspections, most recent first (the API orders them).
- * Completed ones open a shareable report; in-progress ones go back to the
- * property, where the inspection is resumed.
+ * Completed ones open a shareable report; in-progress ones resume the
+ * inspection wizard.
  */
 export function MyInspectionsPage() {
   const { isAuthenticated } = useAuth();
@@ -57,7 +57,7 @@ export function MyInspectionsPage() {
     if (inspection.completedAt !== null) {
       setReportFor(inspection);
     } else {
-      navigate(`/property/${inspection.propertyId}`);
+      navigate(`/property/${inspection.propertyId}/inspection`);
     }
   };
 

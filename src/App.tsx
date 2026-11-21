@@ -12,6 +12,7 @@ import { HostingPage } from './pages/Hosting/HostingPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { FeedPage } from './pages/Feed/FeedPage';
 import { PlaceholderPage } from './pages/Placeholder/PlaceholderPage';
+import { InspectionWizardPage } from './pages/Inspections/InspectionWizardPage';
 import { MyInspectionsPage } from './pages/Inspections/MyInspectionsPage';
 
 export function App() {
@@ -23,6 +24,7 @@ export function App() {
             <Route index element={<HomePage />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="property/:id" element={<PropertyDetailPage />} />
+            <Route path="property/:id/inspection" element={<InspectionWizardPage />} />
             <Route path="saved" element={<SavedPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="messages" element={<MessagesPage />} />
