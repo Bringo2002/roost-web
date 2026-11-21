@@ -21,6 +21,7 @@ import { uploadImage } from '../../services/media';
 import { compressImage } from '../../utils/image';
 import { generateInspectionReport } from '../../utils/inspectionReport';
 import { Icon } from '../../components/Icon/Icon';
+import { SignaturePadModal } from '../../components/SignaturePad/SignaturePadModal';
 import styles from './InspectionWizard.module.css';
 
 const AUTOSAVE_DEBOUNCE_MS = 800;
@@ -57,6 +58,7 @@ export function InspectionWizardPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [signing, setSigning] = useState<'tenant' | 'landlord' | null>(null);
 
   // The latest inspection, readable from timers and async callbacks that would
   // otherwise close over stale state.
@@ -146,7 +148,11 @@ export function InspectionWizardPage() {
       const latest = inspectionRef.current;
       if (!latest) return;
       try {
-        await updateInspection(latest.id, { rooms: latest.rooms });
+        await updateInspection(latest.id, {
+          rooms: latest.rooms,
+          tenantSignature: latest.tenantSignature ?? undefined,
+          landlordSignature: latest.landlordSignature ?? undefined,
+        });
         setSaveFailed(false);
       } catch {
         setSaveFailed(true);
@@ -243,6 +249,26 @@ export function InspectionWizardPage() {
     }
   };
 
+  const closePad = useCallback(() => setSigning(null), []);
+
+  const saveSignature = async (png: Blob) => {
+    const signer = signing;
+    if (!signer) return;
+    setSigning(null);
+    setUploading(true);
+    try {
+      const url = await uploadImage(png, `${signer}_signature_${Date.now()}.png`);
+      mutate(
+        i => (signer === 'tenant' ? { ...i, tenantSignature: url } : { ...i, landlordSignature: url }),
+        true,
+      );
+    } catch {
+      showToast('Failed to save signature');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // ── Navigation ─────────────────────────────────────────────────────────
   const nextRoom = () => {
     if (!inspection) return;
@@ -289,6 +315,8 @@ export function InspectionWizardPage() {
       try {
         await updateInspection(current.id, {
           rooms: completed.rooms,
+          tenantSignature: completed.tenantSignature ?? undefined,
+          landlordSignature: completed.landlordSignature ?? undefined,
           meterElectricity: electricity ?? undefined,
           meterWater: water ?? undefined,
           markComplete: true,
@@ -443,6 +471,22 @@ export function InspectionWizardPage() {
             ))}
           </div>
 
+          <SectionHeader title="SIGN-OFF" />
+          <div className={styles.roomList}>
+            <SignatureRow
+              label="Tenant signature"
+              signed={Boolean(inspection.tenantSignature)}
+              disabled={uploading}
+              onClick={() => setSigning('tenant')}
+            />
+            <SignatureRow
+              label="Landlord signature"
+              signed={Boolean(inspection.landlordSignature)}
+              disabled={uploading}
+              onClick={() => setSigning('landlord')}
+            />
+          </div>
+
           <div className={styles.note}>
             <Icon name="shield-check" size={16} />
             <span>
@@ -577,6 +621,14 @@ export function InspectionWizardPage() {
         )}
       </div>
 
+      {signing && (
+        <SignaturePadModal
+          signerLabel={signing === 'tenant' ? 'Tenant' : 'Landlord'}
+          onConfirm={saveSignature}
+          onClose={closePad}
+        />
+      )}
+
       {toast && <div className={styles.toast} role="status">{toast}</div>}
     </div>
   );
@@ -588,6 +640,31 @@ function SectionHeader({ title }: { title: string }) {
       <span className={styles.sectionBar} />
       <span>{title}</span>
     </div>
+  );
+}
+
+function SignatureRow({
+  label,
+  signed,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  signed: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`${styles.sigRow} ${signed ? styles.sigRowSigned : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+      type="button"
+    >
+      <Icon name={signed ? 'check-circle' : 'pen-line'} size={20} />
+      <span className={styles.sigLabel}>{label}</span>
+      <span className={styles.sigState}>{signed ? 'Signed · tap to redo' : 'Tap to sign'}</span>
+    </button>
   );
 }
 
