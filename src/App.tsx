@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AppLayout } from './components/Layout/AppLayout';
@@ -15,6 +16,11 @@ import { PlaceholderPage } from './pages/Placeholder/PlaceholderPage';
 import { InspectionWizardPage } from './pages/Inspections/InspectionWizardPage';
 import { MyInspectionsPage } from './pages/Inspections/MyInspectionsPage';
 
+// Leaflet is heavy and only this screen needs it.
+const PropertyMapPage = lazy(() =>
+  import('./pages/PropertyMap/PropertyMapPage').then(m => ({ default: m.PropertyMapPage })),
+);
+
 export function App() {
   return (
     <AuthProvider>
@@ -25,6 +31,7 @@ export function App() {
             <Route path="search" element={<SearchPage />} />
             <Route path="property/:id" element={<PropertyDetailPage />} />
             <Route path="property/:id/inspection" element={<InspectionWizardPage />} />
+            <Route path="property/:id/map" element={<Suspense fallback={null}><PropertyMapPage /></Suspense>} />
             <Route path="saved" element={<SavedPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="messages" element={<MessagesPage />} />
