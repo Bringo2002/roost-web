@@ -17,6 +17,8 @@ import {
   type MoveInInspection,
   type RoomInspection,
 } from '../../types/inspection';
+import { uploadImage } from '../../services/media';
+import { compressImage } from '../../utils/image';
 import { generateInspectionReport } from '../../utils/inspectionReport';
 import { Icon } from '../../components/Icon/Icon';
 import styles from './InspectionWizard.module.css';
@@ -54,6 +56,7 @@ export function InspectionWizardPage() {
   const [meterWater, setMeterWater] = useState('');
   const [toast, setToast] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [uploading, setUploading] = useState(false);
 
   // The latest inspection, readable from timers and async callbacks that would
   // otherwise close over stale state.
@@ -209,6 +212,37 @@ export function InspectionWizardPage() {
       })),
     );
 
+  const attachPhoto = async (itemIndex: number, file: File) => {
+    // Capture the room now so the photo lands on the right item even if the
+    // tenant moves on to another room while it uploads.
+    const targetRoom = roomIndex;
+    setUploading(true);
+    try {
+      const blob = await compressImage(file);
+      const url = await uploadImage(blob, `inspection_${Date.now()}.jpg`);
+      mutate(
+        i => ({
+          ...i,
+          rooms: i.rooms.map((r, ri) =>
+            ri === targetRoom
+              ? {
+                  ...r,
+                  items: r.items.map((item, k) =>
+                    k === itemIndex ? { ...item, photoUrls: [...item.photoUrls, url] } : item,
+                  ),
+                }
+              : r,
+          ),
+        }),
+        true,
+      );
+    } catch {
+      showToast('Failed to upload photo');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // ── Navigation ─────────────────────────────────────────────────────────
   const nextRoom = () => {
     if (!inspection) return;
@@ -266,15 +300,18 @@ export function InspectionWizardPage() {
     return generateInspectionReport(completed);
   };
 
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const copyReport = async () => {
     const report = await finalizeAndGenerateReport();
     try {
       await navigator.clipboard.writeText(report);
-      setToast('Deposit Protection Report copied to clipboard!');
-      setTimeout(() => setToast(null), 3000);
+      showToast('Deposit Protection Report copied to clipboard!');
     } catch {
-      setToast("Couldn't copy the report. Select and copy it from the share option instead.");
-      setTimeout(() => setToast(null), 3000);
+      showToast("Couldn't copy the report. Select and copy it from the share option instead.");
     }
   };
 
@@ -462,6 +499,45 @@ export function InspectionWizardPage() {
                     value={item.notes}
                     onChange={e => setNotes(i, e.target.value)}
                   />
+                )}
+
+                <div className={styles.photoRow}>
+                  <label className={`${styles.photoBtn} ${uploading ? styles.photoBtnDisabled : ''}`}>
+                    <Icon name={uploading ? 'clock' : 'camera'} size={16} />
+                    {uploading ? 'Uploading...' : 'Add Photo'}
+                    <input
+                      className={styles.fileInput}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      disabled={uploading}
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        e.target.value = '';
+                        if (file) attachPhoto(i, file);
+                      }}
+                    />
+                  </label>
+                  {item.photoUrls.length > 0 && (
+                    <span className={styles.photoCount}>
+                      {item.photoUrls.length} photo{item.photoUrls.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+
+                {item.photoUrls.length > 0 && (
+                  <div className={styles.thumbs}>
+                    {item.photoUrls.map((url, k) => (
+                      <img
+                        key={`${url}-${k}`}
+                        className={styles.thumb}
+                        src={url}
+                        alt={`${item.name} photo ${k + 1}`}
+                        loading="lazy"
+                        onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             ))}
