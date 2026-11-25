@@ -13,6 +13,7 @@ import {
 } from '../../types/listing';
 import { Icon } from '../../components/Icon/Icon';
 import { PhotosStep } from './steps/PhotosStep';
+import { BasicsStep } from './steps/BasicsStep';
 import styles from './ListProperty.module.css';
 
 /**
@@ -78,6 +79,14 @@ function ListingForm({ userId }: { userId: number }) {
     setTimeout(() => setToast(null), 4000);
   }, []);
 
+  const clearError = useCallback((key: string) => {
+    setErrors(current => {
+      if (!(key in current)) return current;
+      const { [key]: _removed, ...rest } = current;
+      return rest;
+    });
+  }, []);
+
   const goTo = (next: number) => {
     setErrors({});
     setStep(next);
@@ -131,6 +140,8 @@ function ListingForm({ userId }: { userId: number }) {
 
       {step === 0 ? (
         <PhotosStep draft={draft} updateDraft={updateDraft} error={errors.photos} notify={notify} />
+      ) : step === 1 ? (
+        <BasicsStep draft={draft} updateDraft={updateDraft} errors={errors} clearError={clearError} />
       ) : (
         <div className={styles.stepBody}>
           <h2 className={styles.stepTitle}>{STEP_LABELS[step]}</h2>

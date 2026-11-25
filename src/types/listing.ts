@@ -10,7 +10,7 @@ export const MIN_PHOTOS = 3;
 export const MAX_PHOTOS = 30;
 
 /** Country used until the multi-country config lands on web. */
-export const DEFAULT_COUNTRY = { code: 'KE', dialCode: '+254' } as const;
+export const DEFAULT_COUNTRY = { code: 'KE', dialCode: '+254', currencyCode: 'KES' } as const;
 
 export const HOUSE_TYPES = ['BEDSITTER', 'STUDIO', '1BR', '2BR', '3BR+'] as const;
 export type ListingHouseType = (typeof HOUSE_TYPES)[number];
@@ -215,7 +215,7 @@ export interface PayloadOptions {
   /** When editing, keep the listing's current values; new listings are available and unverified. */
   available?: boolean;
   verified?: boolean;
-  country?: { code: string; dialCode: string };
+  country?: { code: string; dialCode: string; currencyCode?: string };
 }
 
 export function generateEndorsementToken(): string {
