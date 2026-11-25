@@ -18,9 +18,9 @@ export type ListingHouseType = (typeof HOUSE_TYPES)[number];
 export const HOUSE_TYPE_LABELS: Record<ListingHouseType, string> = {
   BEDSITTER: 'Bedsitter',
   STUDIO: 'Studio',
-  '1BR': '1 Bedroom',
-  '2BR': '2 Bedrooms',
-  '3BR+': '3+ Bedrooms',
+  '1BR': '1 Bed',
+  '2BR': '2 Bed',
+  '3BR+': '3 Bed+',
 };
 
 export const ELECTRICITY_TYPES = ['tokens', 'postpaid', 'included'] as const;
@@ -175,31 +175,33 @@ export function formatPhone(raw: string, dialCode: string = DEFAULT_COUNTRY.dial
 
 export type StepErrors = Record<string, string>;
 
-/** Errors for one step (0-based). An empty object means the step can continue. */
+/**
+ * Errors for one step (0-based), keyed like the app's: photos, title, price,
+ * locationText, gps, phone, caretakerName, caretakerPhone. An empty object
+ * means the step can continue.
+ */
 export function validateStep(draft: ListingDraft, step: number): StepErrors {
   const errors: StepErrors = {};
 
   if (step === 0) {
     if (draft.imageUrls.length < MIN_PHOTOS) {
-      errors.images = `Add at least ${MIN_PHOTOS} photos`;
+      errors.photos = `Add at least ${MIN_PHOTOS} photos to continue`;
     }
   } else if (step === 1) {
-    const title = draft.title.trim();
-    if (title === '') errors.title = 'Enter a title';
-    else if (title.length < 5) errors.title = 'Title is too short';
+    if (draft.title.trim() === '') errors.title = 'Give your listing a title';
 
     const priceText = draft.price.trim();
     const price = parseAmount(priceText);
     if (priceText === '') errors.price = 'Enter the monthly rent';
     else if (price === null || price <= 0) errors.price = 'Enter a valid amount';
   } else if (step === 2) {
-    if (draft.location.trim() === '') errors.location = 'Enter the location';
-    else if (!draft.locationConfirmed) errors.location = 'Confirm the location';
+    if (draft.location.trim() === '') errors.locationText = 'Add a neighborhood or street';
+    if (!draft.locationConfirmed) errors.gps = 'Use your current location to continue';
   } else if (step === 4) {
-    if (draft.phone.trim() === '') errors.phone = 'Enter a phone number';
-    if (draft.managerRole === 'CARETAKER') {
-      if (draft.ownerName.trim() === '') errors.ownerName = "Enter the owner's name";
-      if (draft.ownerPhone.trim() === '') errors.ownerPhone = "Enter the owner's phone number";
+    if (draft.phone.trim() === '') errors.phone = 'Add a contact phone number';
+    if (draft.managerRole !== 'LANDLORD') {
+      if (draft.caretakerName.trim() === '') errors.caretakerName = 'Enter the name of the on-site contact';
+      if (draft.caretakerPhone.trim() === '') errors.caretakerPhone = 'Enter their phone number';
     }
   }
   return errors;

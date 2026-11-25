@@ -14,6 +14,7 @@ import { SettingsPage } from './pages/Settings/SettingsPage';
 import { FeedPage } from './pages/Feed/FeedPage';
 import { PlaceholderPage } from './pages/Placeholder/PlaceholderPage';
 import { InspectionWizardPage } from './pages/Inspections/InspectionWizardPage';
+import { ListPropertyPage } from './pages/ListProperty/ListPropertyPage';
 import { MyInspectionsPage } from './pages/Inspections/MyInspectionsPage';
 
 // Leaflet is heavy and only this screen needs it.
@@ -43,6 +44,7 @@ export function App() {
             <Route path="map" element={<Suspense fallback={null}><MapPage /></Suspense>} />
             <Route path="feed" element={<FeedPage />} />
             <Route path="inspections" element={<MyInspectionsPage />} />
+            <Route path="hosting/new/wizard" element={<ListPropertyPage />} />
             <Route path="hosting/new" element={<PlaceholderPage icon="➕" title="List a Property" description="Add your property with GPS verification and reach thousands of tenants." />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="*" element={<PlaceholderPage icon="404" title="Page Not Found" description="The page you're looking for doesn't exist." />} />

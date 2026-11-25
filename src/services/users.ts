@@ -69,3 +69,8 @@ export async function changePassword(
     return { success: false, error: err instanceof Error ? err.message : 'Failed to change password' };
   }
 }
+
+/** Turns the signed-in account into a host (lister). Refresh the user afterwards to pick up the new role. */
+export async function becomeHost(): Promise<void> {
+  await api.post('/api/auth/lister-profile');
+}
