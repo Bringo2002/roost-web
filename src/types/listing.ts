@@ -89,6 +89,10 @@ export interface ListingDraft {
   latitude: number | null;
   longitude: number | null;
   locationConfirmed: boolean;
+  /** The backend confirmed the pin matches where the lister stood. Shown, not required. */
+  gpsVerified: boolean;
+  /** The area last filled in from the lister's position, so it can be told apart from typing. */
+  suggestedLocation: string | null;
   // Amenities
   amenities: Record<AmenityKey, boolean>;
   customAmenities: string[];
@@ -132,6 +136,8 @@ export function emptyListingDraft(): ListingDraft {
     latitude: null,
     longitude: null,
     locationConfirmed: false,
+    gpsVerified: false,
+    suggestedLocation: null,
     amenities,
     customAmenities: [],
     managerRole: 'LANDLORD',
@@ -169,6 +175,16 @@ export function formatPhone(raw: string, dialCode: string = DEFAULT_COUNTRY.dial
   if (text === '') return '';
   if (text.startsWith('+')) return text;
   return `${dialCode}${text.replace(/^0/, '')}`;
+}
+
+/**
+ * Whether a position-based area suggestion may replace what's in the field:
+ * only when it's empty or still holds the previous suggestion untouched.
+ */
+export function shouldApplyAreaSuggestion(currentText: string, previousSuggestion: string | null): boolean {
+  const text = currentText.trim();
+  if (text === '') return true;
+  return previousSuggestion !== null && text === previousSuggestion;
 }
 
 // ── Validation ──────────────────────────────────────────────────────────
