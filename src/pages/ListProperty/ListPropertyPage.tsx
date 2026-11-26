@@ -2,18 +2,22 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { becomeHost } from '../../services/users';
-import { saveListing } from '../../services/listings';
+import { gpsVerificationFailureMessage, saveListing, verifyGps } from '../../services/listings';
+import { getVerificationFix, verificationPayload } from '../../services/location';
+import { reverseGeocodeArea } from '../../services/geocoding';
 import { useListingDraft } from '../../hooks/useListingDraft';
 import {
   STEP_COUNT,
   STEP_LABELS,
   buildPropertyPayload,
+  shouldApplyAreaSuggestion,
   validateStep,
   type StepErrors,
 } from '../../types/listing';
 import { Icon } from '../../components/Icon/Icon';
 import { PhotosStep } from './steps/PhotosStep';
 import { BasicsStep } from './steps/BasicsStep';
+import { LocationStep } from './steps/LocationStep';
 import styles from './ListProperty.module.css';
 
 /**
@@ -72,14 +76,15 @@ function ListingForm({ userId }: { userId: number }) {
   const { draft, listingId, step, updateDraft, setStep, setListingId } = useListingDraft(userId);
   const [errors, setErrors] = useState<StepErrors>({});
   const [busy, setBusy] = useState(false);
+  const [checkingGps, setCheckingGps] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
-  const notify = useCallback((message: string) => {
+  const notify = useCallback((message: string, durationMs = 4000) => {
     setToast(message);
-    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => setToast(null), durationMs);
   }, []);
 
-  const clearError = useCallback((key: string) => {
+  const clErr = useCallback((key: string) => {
     setErrors(current => {
       if (!(key in current)) return current;
       const { [key]: _removed, ...rest } = current;
@@ -101,6 +106,56 @@ function ListingForm({ userId }: { userId: number }) {
       return;
     }
     if (step < STEP_COUNT - 1) goTo(step + 1);
+  };
+
+  // Pin the listing to where the lister is standing, then ask the backend to
+  // confirm it. The listing is saved first because the backend checks the
+  // reading against the saved pin and address.
+  const captureLocation = async () => {
+    if (checkingGps) return;
+    setCheckingGps(true);
+    try {
+      const fix = await getVerificationFix();
+      if (!fix) {
+        notify("Couldn't get your location. Make sure location access is allowed for Roost, then try again.");
+        return;
+      }
+
+      // Write only the fields this flow owns: the form may have changed while
+      // the position was being read.
+      const pin = {
+        latitude: fix.latitude,
+        longitude: fix.longitude,
+        locationConfirmed: true,
+        gpsVerified: false,
+      };
+      updateDraft(pin);
+      clErr('gps');
+
+      // Suggest the area before saving: the backend checks the listing's
+      // address against this very position, so an empty or unfindable address
+      // would fail verification.
+      let toSave = { ...draft, ...pin };
+      const area = await reverseGeocodeArea(fix.latitude, fix.longitude);
+      if (area && shouldApplyAreaSuggestion(draft.location, draft.suggestedLocation)) {
+        const suggestion = { location: area, suggestedLocation: area };
+        updateDraft(suggestion);
+        clErr('locationText');
+        toSave = { ...toSave, ...suggestion };
+      }
+
+      try {
+        const saved = await saveListing(listingId, buildPropertyPayload(toSave, { status: 'DRAFT' }));
+        setListingId(saved.id);
+        await verifyGps(saved.id, verificationPayload(fix));
+        updateDraft({ gpsVerified: true });
+      } catch (e) {
+        // The pin stays and the card shows "Location captured"; the lister can retry.
+        notify(gpsVerificationFailureMessage(e), 8000);
+      }
+    } finally {
+      setCheckingGps(false);
+    }
   };
 
   const saveDraft = async () => {
@@ -141,7 +196,16 @@ function ListingForm({ userId }: { userId: number }) {
       {step === 0 ? (
         <PhotosStep draft={draft} updateDraft={updateDraft} error={errors.photos} notify={notify} />
       ) : step === 1 ? (
-        <BasicsStep draft={draft} updateDraft={updateDraft} errors={errors} clearError={clearError} />
+        <BasicsStep draft={draft} updateDraft={updateDraft} errors={errors} clearError={clErr} />
+      ) : step === 2 ? (
+        <LocationStep
+          draft={draft}
+          updateDraft={updateDraft}
+          errors={errors}
+          clearError={clErr}
+          checkingGps={checkingGps}
+          onCapture={captureLocation}
+        />
       ) : (
         <div className={styles.stepBody}>
           <h2 className={styles.stepTitle}>{STEP_LABELS[step]}</h2>

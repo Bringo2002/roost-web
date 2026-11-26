@@ -542,3 +542,57 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
 }
+
+/* ── Location ────────────────────────────────────────────── */
+
+.hint {
+  margin-top: calc(var(--space-2) * -1);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.gpsCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.gpsCardError {
+  border-color: var(--color-error);
+}
+
+.gpsCardVerified {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px var(--color-gold-muted);
+}
+
+.gpsIcon {
+  color: var(--color-gold);
+}
+
+.gpsTitle {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+}
+
+.gpsText {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.gpsCoords {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.gpsCard .primaryBtn {
+  flex: none;
+  width: 100%;
+}
